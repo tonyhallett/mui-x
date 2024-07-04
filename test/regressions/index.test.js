@@ -189,9 +189,6 @@ async function main() {
         link.click();
       });
 
-      // Based on: https://playwright.dev/docs/dialogs#print-dialogs
-      await page.evaluate('(() => {window.waitForPrintDialog = new Promise(f => window.print = f);})()');
-
       // Click the export button in the toolbar.
       await page.getByRole('button', { name: 'Export' }).click();
 
@@ -203,7 +200,8 @@ async function main() {
         printButton.click();
       });
 
-      await page.waitForFunction('window.waitForPrintDialog');
+      await sleep(4000);
+      await page.screenshot({ path: screenshotPath, fullPage: true });
 
       return new Promise((resolve, reject) => {
         // See https://ffmpeg.org/ffmpeg-devices.html#x11grab
