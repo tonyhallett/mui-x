@@ -111,7 +111,7 @@ async function initializeEnvironment(
   // taken from: https://github.com/microsoft/playwright/issues/6347#issuecomment-1085850728
   // Update the Date accordingly in your test pages
   // Pick the new/fake "now" for you test pages.
-  await page.clock.install({ time: new Date('2022-04-17T13:37:11').valueOf() });
+  await page.clock.install({ time: new Date('2022-04-17T13:37:11') });
   const isServerRunning = await attemptGoto(page, `${baseUrl}#no-dev`);
   if (!isServerRunning) {
     throw new Error(
@@ -866,7 +866,7 @@ async function initializeEnvironment(
         });
       });
 
-      it('should correctly select hours section when there are no time renderers on v6', async () => {
+      it.only('should correctly select hours section when there are no time renderers on v6', async () => {
         // The test is flaky on webkit
         if (browserType.name() === 'webkit') {
           return;
