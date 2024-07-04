@@ -201,7 +201,6 @@ async function main() {
       });
 
       await sleep(4000);
-      await page.screenshot({ path: screenshotPath, fullPage: true });
 
       return new Promise((resolve, reject) => {
         // See https://ffmpeg.org/ffmpeg-devices.html#x11grab
