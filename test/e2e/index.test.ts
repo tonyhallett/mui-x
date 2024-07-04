@@ -695,10 +695,14 @@ async function initializeEnvironment(
         it('should focus the first field section after clearing a value in v6 input', async () => {
           await renderFixture('DatePicker/BasicClearableDesktopDatePicker');
 
-          const textbox = page.getByRole('textbox');
-          // locator.fill('2') does not work reliably for this case in all browsers
-          await textbox.focus();
-          await textbox.press('2');
+          if (browserType.name() === 'webkit') {
+            const textbox = page.getByRole('textbox');
+            // locator.fill('2') does not work reliably for this case in all browsers
+            await textbox.focus();
+            await textbox.press('2');
+          } else {
+            await page.getByRole('textbox').fill('2');
+          }
           await page.getByRole('button', { name: 'Clear value' }).click();
 
           // firefox does not support document.getSelection().toString() on input elements
