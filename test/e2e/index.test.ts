@@ -671,9 +671,6 @@ async function initializeEnvironment(
 
           const input = page.getByRole('textbox', { includeHidden: true });
 
-          const isMac = platform() === 'darwin';
-          const modifier = isMac ? 'Meta' : 'Control';
-
           const monthSection = page.getByRole(`spinbutton`, { name: 'Month' });
           const daySection = page.getByRole(`spinbutton`, { name: 'Day' });
           const yearSection = page.getByRole(`spinbutton`, { name: 'Year' });
@@ -686,13 +683,13 @@ async function initializeEnvironment(
           // move to day section
           await yearSection.press('ArrowLeft');
           // copy day section value
-          await daySection.press(`${modifier}+KeyC`);
+          await daySection.press('ControlOrMeta+KeyC');
           // move to month section
           await daySection.press('ArrowLeft');
           // initiate search query on month section
           await monthSection.press('1');
           // paste day section value to month section
-          await monthSection.press(`${modifier}+KeyV`);
+          await monthSection.press('ControlOrMeta+KeyV');
 
           expect(await input.inputValue()).to.equal('11/11/2022');
 
