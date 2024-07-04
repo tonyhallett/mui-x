@@ -87,7 +87,8 @@ async function main() {
       await browser.close();
     });
 
-    before(async () => {
+    before(async function beforeHook() {
+      this.timeout(20000);
       // ensure test routes are present
       console.info('before routes', routes.length);
       if (routes.length === 0) {
