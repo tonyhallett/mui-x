@@ -11,11 +11,11 @@ function sleep(timeoutMS: number): Promise<void> {
 }
 
 async function initializeRoutes(page: Page) {
-  return page.$$eval('#tests a', (links) => {
-    return (links as HTMLAnchorElement[]).map((link) => {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLAnchorElement>('#tests a')).map((link) => {
       return link.href;
-    });
-  });
+    }),
+  );
 }
 
 async function main() {
