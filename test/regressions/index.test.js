@@ -189,21 +189,21 @@ async function main() {
         link.click();
       });
 
+      // Based on: https://playwright.dev/docs/dialogs#print-dialogs
+      await page.evaluate('(() => {window.waitForPrintDialog = new Promise(f => window.print = f);})()');
+
       // Click the export button in the toolbar.
-      await page.$eval(`button[aria-label="Export"]`, (exportButton) => {
-        exportButton.click();
-      });
+      await page.getByRole('button', { name: 'Export' }).click();
 
+      const printButton = page.getByRole('menuitem', { name: 'Print' });
       // Click the print export option from the export menu in the toolbar.
-      await page.$eval(`li[role="menuitem"]:last-child`, (printButton) => {
-        // Trigger the action async because window.print() is blocking the main thread
-        // like window.alert() is.
-        setTimeout(() => {
-          printButton.click();
-        });
+      // Trigger the action async because window.print() is blocking the main thread
+      // like window.alert() is.
+      setTimeout(() => {
+        printButton.click();
       });
 
-      await sleep(4000);
+      await page.waitForFunction('window.waitForPrintDialog');
 
       return new Promise((resolve, reject) => {
         // See https://ffmpeg.org/ffmpeg-devices.html#x11grab
