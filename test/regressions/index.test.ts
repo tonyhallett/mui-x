@@ -2,7 +2,7 @@ import * as fse from 'fs-extra';
 import { expect } from 'chai';
 import * as path from 'path';
 import * as childProcess from 'child_process';
-import { firefox, Page } from '@playwright/test';
+import { chromium } from '@playwright/test';
 
 function sleep(timeoutMS: number): Promise<void> {
   return new Promise((resolve) => {
@@ -10,19 +10,11 @@ function sleep(timeoutMS: number): Promise<void> {
   });
 }
 
-async function initializeRoutes(page: Page) {
-  return page.evaluate(() =>
-    Array.from(document.querySelectorAll<HTMLAnchorElement>('#tests a')).map((link) => {
-      return link.href;
-    }),
-  );
-}
-
 async function main() {
   const baseUrl = 'http://localhost:5001';
   const screenshotDir = path.resolve(__dirname, './screenshots/chrome');
 
-  const browser = await firefox.launch({
+  const browser = await chromium.launch({
     args: ['--font-render-hinting=none'],
     // otherwise the loaded google Roboto font isn't applied
     headless: false,
@@ -66,7 +58,9 @@ async function main() {
     });
   });
 
-  let routes = await initializeRoutes(page);
+  const routes = await page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLAnchorElement>('#tests a')).map((link) => link.href),
+  );
 
   // prepare screenshots
   await fse.emptyDir(screenshotDir);
@@ -85,23 +79,6 @@ async function main() {
   describe('visual regressions', () => {
     after(async () => {
       await browser.close();
-    });
-
-    before(async function beforeHook() {
-      this.timeout(20000);
-      // ensure test routes are present
-      console.info('before routes', routes.length);
-      if (routes.length === 0) {
-        routes = await initializeRoutes(page);
-      }
-    });
-
-    beforeEach(async () => {
-      console.info('beforeEach routes', routes.length);
-      // ensure test routes are present
-      if (routes.length === 0) {
-        routes = await initializeRoutes(page);
-      }
     });
 
     it('should have no errors after the initial render', () => {
