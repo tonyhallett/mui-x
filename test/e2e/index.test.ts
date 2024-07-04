@@ -510,7 +510,7 @@ async function initializeEnvironment(
         await renderFixture('DataGrid/KeyboardEditInput');
 
         await page.click('[role="gridcell"][data-field="brand"]');
-        await page.keyboard.press('Control+v');
+        await page.keyboard.press('ControlOrMeta+v');
 
         expect(
           await page.locator('[role="gridcell"][data-field="brand"] input').inputValue(),
@@ -636,7 +636,7 @@ async function initializeEnvironment(
 
           expect(await input.inputValue()).to.equal('04/11/2022');
 
-          await page.keyboard.press('Control+a');
+          await page.keyboard.press('ControlOrMeta+a');
           expect(await page.evaluate(() => document.getSelection()?.toString())).to.equal(
             '04/11/2022',
           );
