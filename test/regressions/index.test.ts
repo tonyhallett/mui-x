@@ -2,17 +2,17 @@ import * as fse from 'fs-extra';
 import { expect } from 'chai';
 import * as path from 'path';
 import * as childProcess from 'child_process';
-import { firefox } from '@playwright/test';
+import { firefox, Page } from '@playwright/test';
 
-function sleep(timeoutMS) {
+function sleep(timeoutMS: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(() => resolve(), timeoutMS);
   });
 }
 
-async function initializeRoutes(page) {
+async function initializeRoutes(page: Page) {
   return page.$$eval('#tests a', (links) => {
-    return links.map((link) => {
+    return (links as HTMLAnchorElement[]).map((link) => {
       return link.href;
     });
   });
@@ -43,7 +43,7 @@ async function main() {
     }
   });
 
-  let errorConsole;
+  let errorConsole: string | undefined;
 
   page.on('console', (msg) => {
     // Filter out native user-agent errors e.g. "Failed to load resource: net::ERR_FAILED"
@@ -54,7 +54,7 @@ async function main() {
 
   // Wait for all requests to finish.
   // This should load shared resources such as fonts.
-  await page.goto(`${baseUrl}#no-dev`, { waitUntil: 'networkidle0' });
+  await page.goto(`${baseUrl}#no-dev`, { waitUntil: 'networkidle' });
 
   // Simulate portrait mode for date pickers.
   // See `useIsLandscape`.
@@ -71,12 +71,13 @@ async function main() {
   // prepare screenshots
   await fse.emptyDir(screenshotDir);
 
-  function navigateToTest(testIndex) {
+  function navigateToTest(testIndex: number) {
     // Use client-side routing which is much faster than full page navigation via page.goto().
     // Could become an issue with test isolation.
     // If tests are flaky due to global pollution switch to page.goto(route);
     // puppeteers built-in click() times out
     return page.$eval(`#tests li:nth-of-type(${testIndex}) a`, (link) => {
+      // @ts-ignore
       link.click();
     });
   }
@@ -87,6 +88,15 @@ async function main() {
     });
 
     before(async () => {
+      // ensure test routes are present
+      console.info('before routes', routes.length);
+      if (routes.length === 0) {
+        routes = await initializeRoutes(page);
+      }
+    });
+
+    beforeEach(async () => {
+      console.info('beforeEach routes', routes.length);
       // ensure test routes are present
       if (routes.length === 0) {
         routes = await initializeRoutes(page);
@@ -172,6 +182,7 @@ async function main() {
 
       const testcaseIndex = routes.indexOf(route);
       await page.$eval(`#tests li:nth-of-type(${testcaseIndex + 1}) a`, (link) => {
+        // @ts-ignore
         link.click();
       });
 
@@ -181,8 +192,10 @@ async function main() {
 
       await page.evaluate(() => {
         const virtualScroller = document.querySelector('.MuiDataGrid-virtualScroller');
-        virtualScroller.scrollLeft = 400;
-        virtualScroller.dispatchEvent(new Event('scroll'));
+        if (virtualScroller) {
+          virtualScroller.scrollLeft = 400;
+          virtualScroller.dispatchEvent(new Event('scroll'));
+        }
       });
 
       await testcase.screenshot({ path: screenshotPath, type: 'png' });
@@ -197,6 +210,7 @@ async function main() {
 
       const testcaseIndex = routes.indexOf(route);
       await page.$eval(`#tests li:nth-of-type(${testcaseIndex + 1}) a`, (link) => {
+        // @ts-ignore
         link.click();
       });
 
