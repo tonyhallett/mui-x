@@ -703,7 +703,7 @@ async function initializeEnvironment(
           } else {
             await page.getByRole('textbox').fill('2');
           }
-          await page.getByRole('button', { name: 'Clear value' }).click();
+          await page.getByRole('button', { name: 'Clear value', includeHidden: true }).click();
 
           // firefox does not support document.getSelection().toString() on input elements
           if (browserType.name() === 'firefox') {
