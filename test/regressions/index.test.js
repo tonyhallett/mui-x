@@ -10,7 +10,7 @@ function sleep(timeoutMS) {
   });
 }
 
-async function initializeRoutes() {
+async function initializeRoutes(page) {
   return page.$$eval('#tests a', (links) => {
     return links.map((link) => {
       return link.href;
@@ -66,7 +66,7 @@ async function main() {
     });
   });
 
-  let routes = await initializeRoutes();
+  let routes = await initializeRoutes(page);
 
   // prepare screenshots
   await fse.emptyDir(screenshotDir);
@@ -89,7 +89,7 @@ async function main() {
     before(async () => {
       // ensure test routes are present
       if (routes.length === 0) {
-        routes = await initializeRoutes();
+        routes = await initializeRoutes(page);
       }
     });
 
