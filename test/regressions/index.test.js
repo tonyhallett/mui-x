@@ -10,6 +10,14 @@ function sleep(timeoutMS) {
   });
 }
 
+async function initializeRoutes() {
+  return page.$$eval('#tests a', (links) => {
+    return links.map((link) => {
+      return link.href;
+    });
+  });
+}
+
 async function main() {
   const baseUrl = 'http://localhost:5001';
   const screenshotDir = path.resolve(__dirname, './screenshots/chrome');
@@ -58,11 +66,7 @@ async function main() {
     });
   });
 
-  const routes = await page.$$eval('#tests a', (links) => {
-    return links.map((link) => {
-      return link.href;
-    });
-  });
+  let routes = await initializeRoutes();
 
   // prepare screenshots
   await fse.emptyDir(screenshotDir);
@@ -80,6 +84,13 @@ async function main() {
   describe('visual regressions', () => {
     after(async () => {
       await browser.close();
+    });
+
+    before(async () => {
+      // ensure test routes are present
+      if (routes.length === 0) {
+        routes = await initializeRoutes();
+      }
     });
 
     it('should have no errors after the initial render', () => {
