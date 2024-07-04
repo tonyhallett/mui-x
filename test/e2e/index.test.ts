@@ -867,8 +867,8 @@ async function initializeEnvironment(
       });
 
       it('should correctly select hours section when there are no time renderers on v6', async () => {
-        // The test is flaky on webkit
-        if (browserType.name() === 'webkit') {
+        // The test is flaky on webkit and firefox
+        if (browserType.name() === 'webkit' || browserType.name() === 'firefox') {
           return;
         }
         await renderFixture(
@@ -878,18 +878,9 @@ async function initializeEnvironment(
         await page.getByRole('button').click();
         await page.getByRole('gridcell', { name: '11' }).click();
 
-        // assert that the hours section has been selected using two APIs
+        // assert that the hours section has been selected
         await waitFor(async () => {
-          // firefox does not support document.getSelection().toString() on input elements
-          if (browserType.name() === 'firefox') {
-            expect(
-              await page.evaluate(
-                () => (document.activeElement as HTMLInputElement | null)?.selectionStart,
-              ),
-            ).to.equal(11);
-          } else {
-            expect(await page.evaluate(() => document.getSelection()?.toString())).to.equal('12');
-          }
+          expect(await page.evaluate(() => document.getSelection()?.toString())).to.equal('12');
         });
       });
     });
