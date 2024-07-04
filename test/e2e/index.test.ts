@@ -77,9 +77,6 @@ async function attemptGoto(page: Page, url: string): Promise<boolean> {
   return didNavigate;
 }
 
-// Pick the new/fake "now" for you test pages.
-const fakeNow = new Date('2022-04-17T13:37:11').valueOf();
-
 let browser: Browser;
 let context: BrowserContext;
 let page: Page;
@@ -114,22 +111,8 @@ async function initializeEnvironment(
   page = await context.newPage();
   // taken from: https://github.com/microsoft/playwright/issues/6347#issuecomment-1085850728
   // Update the Date accordingly in your test pages
-  await page.addInitScript(`{
-    // Extend Date constructor to default to fakeNow
-    Date = class extends Date {
-      constructor(...args) {
-        if (args.length === 0) {
-          super(${fakeNow});
-        } else {
-          super(...args);
-        }
-      }
-    }
-    // Override Date.now() to start from fakeNow
-    const __DateNowOffset = ${fakeNow} - Date.now();
-    const __DateNow = Date.now;
-    Date.now = () => __DateNow() + __DateNowOffset;
-  }`);
+  // Pick the new/fake "now" for you test pages.
+  await page.clock.install({ time: new Date('2022-04-17T13:37:11').valueOf() });
   const isServerRunning = await attemptGoto(page, `${baseUrl}#no-dev`);
   if (!isServerRunning) {
     throw new Error(
