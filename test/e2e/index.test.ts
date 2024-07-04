@@ -866,7 +866,7 @@ async function initializeEnvironment(
         });
       });
 
-      it.only('should correctly select hours section when there are no time renderers on v6', async () => {
+      it('should correctly select hours section when there are no time renderers on v6', async () => {
         // The test is flaky on webkit
         if (browserType.name() === 'webkit') {
           return;
